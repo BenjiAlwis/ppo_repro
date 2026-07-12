@@ -1,0 +1,16 @@
+# PPO reproduction — dependencies
+# Install with: pip install -r requirements.txt
+#
+# A recent CUDA-enabled PyTorch is assumed; if you need a specific CUDA build,
+# install torch separately from https://pytorch.org first, then the rest.
+
+torch>=2.1
+numpy>=1.24
+gymnasium[mujoco]>=1.0
+pandas>=2.0
+matplotlib>=3.7
+tensorboard>=2.14
+
+# For the Atari stretch goal (optional):
+# gymnasium[atari]>=1.0
+# ale-py>=0.9

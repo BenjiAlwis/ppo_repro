@@ -1,0 +1,46 @@
+name: ppo-repro
+# Conda environment for the CS5180 PPO reproduction.
+#
+# Create:   conda env create -f environment.yml
+# Activate: conda activate ppo-repro
+# Update:   conda env update -f environment.yml --prune
+#
+# Notes:
+#  - PyTorch is installed from the pytorch/nvidia channels with CUDA 12.1.
+#    If your GPU/driver needs a different CUDA version, change pytorch-cuda
+#    below (e.g. 11.8) or see https://pytorch.org for the exact selector.
+#  - gymnasium[mujoco] and tensorboard come via pip because their extras and
+#    latest versions resolve more reliably there; conda supplies the compiled
+#    base (python, numpy, pytorch) and the system libs MuJoCo's renderer needs.
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip
+  - numpy>=1.24
+  - pandas>=2.0
+  - matplotlib>=3.7
+
+  # PyTorch with CUDA (GPU build)
+  - pytorch>=2.1
+  - torchvision
+  - pytorch-cuda=12.1
+
+  # System libraries MuJoCo's OpenGL renderer links against. Including them
+  # here avoids the classic "GLEW/GLFW/libGL not found" errors on headless
+  # Linux boxes (RunPod, clusters).
+  - glew
+  - glfw
+  - mesalib
+  - patchelf
+
+  - pip:
+      - "gymnasium[mujoco]>=1.0"
+      - tensorboard>=2.14
+      # Atari stretch goal (uncomment when needed):
+      # - "gymnasium[atari]>=1.0"
+      # - "ale-py>=0.9"
