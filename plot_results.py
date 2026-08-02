@@ -1,14 +1,6 @@
 """
 plot_results.py
 ===============
-Reads the metrics.csv files written by ppo_continuous.py and produces:
-  1. Per-environment learning curves (episodic return vs timestep),
-     averaged over seeds, with mean +/- std shading.
-  2. An ablation figure overlaying clip / noclip / kl on one environment.
-
-Directory layout expected (default from ppo_continuous.py):
-    runs/<env>__<mode>__seed<seed>__<timestamp>/metrics.csv
-
 Usage:
     python plot_results.py --log-dir runs --out figures
     python plot_results.py --log-dir runs --out figures --env HalfCheetah-v5

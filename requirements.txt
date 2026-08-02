@@ -1,8 +1,5 @@
 # PPO reproduction — dependencies
 # Install with: pip install -r requirements.txt
-#
-# A recent CUDA-enabled PyTorch is assumed; if you need a specific CUDA build,
-# install torch separately from https://pytorch.org first, then the rest.
 
 torch>=2.1
 numpy>=1.24

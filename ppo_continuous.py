@@ -1,34 +1,13 @@
 """
 ppo_continuous.py
 =================
-Paper-faithful PPO for continuous control (MuJoCo / Gymnasium), written for the
-CS5180 capstone reproduction of Schulman et al. (2017),
+Written for the CS5180 capstone reproduction of Schulman et al. (2017),
 "Proximal Policy Optimization Algorithms".
-
-Single script, three objective modes selected with --mode:
+(MuJoCo / Gymnasium)
+ --mode:
     clip    : the clipped surrogate objective  L^CLIP   (the paper's main method)
     noclip  : no clipping, no penalty          L^CPI    (ablation baseline)
     kl      : adaptive KL-penalty objective     L^KLPEN  (ablation baseline)
-
-The data collection, network, GAE, and optimisation loop are IDENTICAL across
-modes; only the policy-loss term changes. This is what makes the ablation fair:
-any difference in results is attributable to the objective alone.
-
-Logging: always writes a CSV (never fails); TensorBoard if available.
-
-Default hyperparameters follow the paper's MuJoCo Table 3:
-    horizon T = 2048, Adam lr = 3e-4, epochs K = 10, minibatch = 64,
-    gamma = 0.99, GAE lambda = 0.95, clip epsilon = 0.2, 1M timesteps.
-
-Implementation details that the paper omits but that matter for performance
-(documented in the code where they occur):
-    - advantage normalisation per minibatch
-    - orthogonal weight init with tuned gains
-    - value-function loss clipping
-    - global gradient-norm clipping
-    - learning-rate annealing
-    - separate (non-shared) policy and value networks, as the paper specifies
-      for the MuJoCo experiments ("we don't share parameters ... c1 is irrelevant")
 
 Usage:
     python ppo_continuous.py --env-id HalfCheetah-v5 --mode clip --seed 1
@@ -37,11 +16,6 @@ Usage:
 
 import os
 
-# Headless rendering for servers without a display (RunPod).
-# MuJoCo's env import initialises an OpenGL context even during training (when
-# nothing is actually rendered), so on a headless box the import can crash
-# unless we select the EGL backend first. Set before importing gymnasium.
-# Override by exporting MUJOCO_GL yourself (e.g. "glfw" on a local desktop).
 os.environ.setdefault("MUJOCO_GL", "egl")
 
 import csv
@@ -120,8 +94,6 @@ def make_env(env_id, seed, idx, run_name, capture_video=False):
     def thunk():
         env = gym.make(env_id, render_mode="rgb_array" if capture_video and idx == 0 else None)
         env = gym.wrappers.RecordEpisodeStatistics(env)
-        # These wrappers are standard for MuJoCo PPO and part of the "implementation
-        # details" that make results reproducible. They are NOT in the paper.
         env = gym.wrappers.ClipAction(env)
         env = gym.wrappers.NormalizeObservation(env)
         env = gym.wrappers.TransformObservation(
@@ -138,7 +110,6 @@ def make_env(env_id, seed, idx, run_name, capture_video=False):
 # Networks (separate policy and value, as the paper specifies for MuJoCo)
 # --------------------------------------------------------------------------- #
 def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
-    # Orthogonal init with tuned gains — a well-known PPO implementation detail.
     torch.nn.init.orthogonal_(layer.weight, std)
     torch.nn.init.constant_(layer.bias, bias_const)
     return layer
@@ -179,7 +150,7 @@ class Agent(nn.Module):
 
 
 # --------------------------------------------------------------------------- #
-# CSV logger (never fails — this is the fallback that always gives raw numbers)
+# CSV logger 
 # --------------------------------------------------------------------------- #
 class CSVLogger:
     def __init__(self, path):
